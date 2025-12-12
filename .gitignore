@@ -1,3 +1,4 @@
 aditya-resume-auth
 .vscode/
 .env
+vendor/
