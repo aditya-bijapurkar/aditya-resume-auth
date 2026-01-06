@@ -17,7 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates wget
+RUN apk --no-cache add ca-certificates curl
 
 RUN addgroup -g 1000 appuser && \
     adduser -D -u 1000 -G appuser appuser
