@@ -1,0 +1,64 @@
+name: Deploy to remote instance from BE
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build and push to Docker image to aditya-resume-auth
+        run: |
+          IMAGE_NAME=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+          docker buildx build --platform linux/amd64 -t $IMAGE_NAME --push .
+
+      - name: Deploy to remote instance
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.INSTANCE_IPV4 }}
+          username: ${{ secrets.INSTANCE_USER }}
+          key: ${{ secrets.INSTANCE_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu
+            sudo rm -f .env-auth
+            
+            echo "writing secrets to .env-auth file"
+            sudo bash -c 'cat <<EOF > .env-auth
+            BASE_URL=${{ secrets.BASE_URL }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_SCHEMA=${{ secrets.DB_SCHEMA }}
+            DB_USER=${{ secrets.DB_USER }}
+            FROM_EMAIL=${{ secrets.FROM_EMAIL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            PORT=${{ secrets.PORT }}
+            REDIRECT_URL=${{ secrets.REDIRECT_URL }}
+            SMTP_HOST=${{ secrets.SMTP_HOST }}
+            SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+            SMTP_PORT=${{ secrets.SMTP_PORT }}
+            SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}
+            EOF'
+
+            IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+            echo "pulling the latest image from docker hub"
+            sudo docker pull $IMAGE
+            echo "restarting the auth container..."
+            sudo docker compose up -d auth
+            echo "removing unused image..."
+            sudo docker image prune -f
+            echo "successfully completed auth restart script!"
