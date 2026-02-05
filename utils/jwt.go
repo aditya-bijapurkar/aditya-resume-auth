@@ -41,7 +41,7 @@ func GenerateToken(username, userID, email string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "auth-service",
+			Issuer:    "auth_service",
 		},
 	}
 
