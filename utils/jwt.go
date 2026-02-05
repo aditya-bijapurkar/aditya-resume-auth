@@ -16,8 +16,8 @@ var (
 
 type Claims struct {
 	UserID   string `json:"auth_user_id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	Username string `json:"auth_username"`
+	Email    string `json:"auth_email"`
 	jwt.RegisteredClaims
 }
 
@@ -33,14 +33,12 @@ func getJWTSecret() []byte {
 }
 
 func GenerateToken(username, userID, email string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
 		UserID:   userID,
 		Username: username,
 		Email:    email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "auth-service",

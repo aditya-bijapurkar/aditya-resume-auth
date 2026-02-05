@@ -137,14 +137,35 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, LoginResponse{
-		Status: http.StatusOK,
-		Token:  token,
+	secureToken := os.Getenv("ENV") == "prod"
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     auth.AuthTokenCookieName,
+		Value:    token,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+		Secure:   secureToken,
+		SameSite: http.SameSiteStrictMode,
 	})
+
+	respondJSON(w, http.StatusOK, map[string]string{"message": "Logged in successfully"})
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	respondJSON(w, http.StatusOK, map[string]string{"message": "Logged out successfully"})
+	secureToken := os.Getenv("ENV") == "prod"
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     auth.AuthTokenCookieName,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HttpOnly: true,
+		Secure:   secureToken,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	respondJSON(w, http.StatusOK, map[string]string{"message": "Logged out successfully!"})
 }
 
 func GetMe(w http.ResponseWriter, r *http.Request) {

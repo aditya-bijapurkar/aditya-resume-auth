@@ -43,7 +43,7 @@ func main() {
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{os.Getenv("REDIRECT_URL")},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -59,7 +59,7 @@ func main() {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", handlers.Signup)
 		r.Post("/login", handlers.Login)
-		r.Post("/logout", auth.RequireAuth(handlers.Logout))
+		r.Post("/logout", handlers.Logout)
 		r.Get("/me", auth.RequireAuth(handlers.GetMe))
 		r.Get("/verify", handlers.VerifyEmail)
 	})
