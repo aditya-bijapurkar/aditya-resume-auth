@@ -44,6 +44,7 @@ jobs:
             DB_PORT=${{ secrets.DB_PORT }}
             DB_SCHEMA=${{ secrets.DB_SCHEMA }}
             DB_USER=${{ secrets.DB_USER }}
+            ENV=${{ secrets.ENV }}
             FROM_EMAIL=${{ secrets.FROM_EMAIL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             PORT=${{ secrets.PORT }}
