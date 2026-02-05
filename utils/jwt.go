@@ -32,6 +32,8 @@ func getJWTSecret() []byte {
 	return jwtSecret
 }
 
+const AuthIssuer = "auth_service"
+
 func GenerateToken(username, userID, email string) (string, error) {
 
 	claims := &Claims{
@@ -41,7 +43,7 @@ func GenerateToken(username, userID, email string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "auth_service",
+			Issuer:    AuthIssuer,
 		},
 	}
 
