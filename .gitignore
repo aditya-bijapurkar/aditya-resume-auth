@@ -2,3 +2,4 @@ aditya-resume-auth
 .vscode/
 .env
 vendor/
+launch.json

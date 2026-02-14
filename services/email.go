@@ -91,7 +91,7 @@ func (es *EmailService) SendVerificationEmail(toEmail, verificationToken string)
 	if err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
-	fmt.Printf("Verification email sent successfully to %s", toEmail)
+	log.Printf("Verification email sent successfully to %s", toEmail)
 
 	return nil
 }

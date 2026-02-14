@@ -35,6 +35,7 @@ func getJWTSecret() []byte {
 const AuthIssuer = "auth_service"
 
 func GenerateToken(username, userID, email string) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
 		UserID:   userID,
@@ -44,6 +45,7 @@ func GenerateToken(username, userID, email string) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    AuthIssuer,
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
 
@@ -76,4 +78,23 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func ValidateSignature(tokenString string) (bool, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return getJWTSecret(), nil
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	if !token.Valid {
+		return false, errors.New("invalid token")
+	}
+
+	return true, nil
 }

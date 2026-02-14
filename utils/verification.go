@@ -20,7 +20,7 @@ func GenerateVerificationToken(email string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "auth-service",
+			Issuer:    AuthIssuer,
 		},
 	}
 
